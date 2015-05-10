@@ -1,0 +1,9 @@
+
+
+.read-page::after {
+    content: " \2713";
+}
+
+.this-page::before {
+    content: "☞ ";
+}
