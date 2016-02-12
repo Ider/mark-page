@@ -1,7 +1,7 @@
+// require(init.js)
 
-
-(function loadStoredData(win) {
-	var STORAGE_KEY_READ_PAGES = "key_read_pages";
+(function(win) {
+	var STORAGE_KEY_READ_PAGES = config.STORAGE_KEY_READ_PAGES;
 
 	var storage = chrome.storage.local;
 
@@ -119,7 +119,7 @@
 	        if (chrome.runtime.lastError) {
 	            log.e(chrome.runtime.lastError);
 	        } else {
-            	log.d('Read pages has been updated');
+            	log.i('Read pages has been updated');
 	        }
 	    });
 	}

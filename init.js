@@ -1,19 +1,24 @@
 
 
-
-(function (win) {
+(function(win) {
 	// TODO: Create NOP log for production
 	var log = {
-		e: function(str) {
-			console.error(str);
-		},
 		d: function(str) {
 			console.debug(str);
 		},
+		e: function(str) {
+			console.error(str);
+		},
+		i: function(str) {
+			console.info(str)
+		},
 		v: function(str) {
 			console.log(str);
+		},
+		w: function(str) {
+			console.warn(str);
 		}
-	}
+	};
 	win.log = log;
 
 	// URL to URI formatter
@@ -27,4 +32,8 @@
 			// TODO: add query/fragment
 		}
 	}
+
+	win.config = {
+		STORAGE_KEY_READ_PAGES: "key_read_pages",
+	};
 })(window);
