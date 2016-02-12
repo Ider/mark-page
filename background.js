@@ -1,4 +1,5 @@
 
+// TEST Purpose
 var lastTab = 0;
 
 chrome.tabs.onActivated.addListener(function(info) {

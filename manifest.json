@@ -1,8 +1,12 @@
 {
   "name": "Mark Page",
-  "description": "This extension adds an animated browser action to the toolbar.",
-  "version": "1.2",
-  "icons":  { "64": "icon.png"},
+  "description": "Mark page as read",
+  "version": "0.2",
+  "icons":  {
+              "16": "icon16.png",
+              "48": "icon48.png",
+              "128": "icon128.png"
+            },
   "background": {
     "scripts": ["util.js", "background.js"],
     "persistent": false
@@ -13,7 +17,7 @@
   },
   "content_scripts": [
     {
-        "matches": ["*://docs.djangoproject.com/*"],
+        "matches": ["<all_urls>"],
         "js": ["util.js", "content.js"],
         "css": ["content.css"]
     }
