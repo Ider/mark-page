@@ -4,13 +4,12 @@ var storage = chrome.storage.local;
 var readPage;
 
 function log(str) {
-    console.log(str);
+    // console.log(str);
 }
 
 var onStorageReady;
 
 storage.get([READ_PAGE_KEY], function(item) {
-    console.dir(item);
     readPage = item[READ_PAGE_KEY];
     if (!readPage) {
         readPage = {};
@@ -29,7 +28,7 @@ function updateRead() {
         if (chrome.runtime.lastError) {
             console.error(chrome.runtime.lastError);
         } else {
-            log('Read updated');
+            log('Read pages has been updated');
         }
     });
 }
