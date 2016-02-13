@@ -15,6 +15,7 @@
     "default_icon": "mark.png",           // optional
     "default_title": "Mark Page as Read"      // optional; shown in tooltip
   },
+  "options_page": "read_pages.html",
   "content_scripts": [
     {
         "matches": ["<all_urls>"],

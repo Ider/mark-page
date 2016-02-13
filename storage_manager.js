@@ -84,13 +84,22 @@
     		} else {
     			return hasRead;
     		}
+		},
+
+		getReadPages: function(callback) {
+			if (readPages === null) {
+				postAction(this.getReadPages, callback);
+				return;
+			}
+
+			callback(readPages);
 		}
 	}
 
 
-	function postAction(func, url) {
+	function postAction(func, arg) {
 		loadStorage(function() {
-			func.call(storageManager, url);
+			func.call(storageManager, arg);
 		});
 	}
 
