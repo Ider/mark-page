@@ -19,7 +19,6 @@ chrome.pageAction.onClicked.addListener(function(tab) {
     updatePageIcon(tab);
 });
 
-
 function updatePageIcon(tab) {
     storageManager.hasRead(tab.url, function(hasRead) {
         var iconInfo = {
@@ -30,3 +29,16 @@ function updatePageIcon(tab) {
         chrome.pageAction.show(tab.id);
     });
 }
+
+chrome.commands.onCommand.addListener(function(command) {
+    if (command == config.COMMAND_TOGGLE_READ) {
+        chrome.tabs.query({active: true, currentWindow: true}, 
+            function(tabs) {
+                if (tabs.length > 0) {
+                    var tab = tabs[0];
+                    storageManager.toggleRead(tab.url);
+                    updatePageIcon(tab);
+                }
+        });
+    }
+});

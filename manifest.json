@@ -22,7 +22,16 @@
         "js": ["init.js", "content.js"],
         "css": ["content.css"]
     }
-  ] ,
+  ],
+  "commands": {
+    "command-toggle-read": {
+      "suggested_key": {
+              "default": "Ctrl+R",
+              "mac": "MacCtrl+R"
+      },
+      "description": "Toggle page read status."
+    }
+  },
   "manifest_version": 2,
   "permissions": [
     "storage",

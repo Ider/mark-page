@@ -43,5 +43,6 @@
 
     win.config = {
         STORAGE_KEY_READ_PAGES: "key_read_pages",
+        COMMAND_TOGGLE_READ: "command-toggle-read",
     };
 })(window);
