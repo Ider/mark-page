@@ -1,140 +1,140 @@
 // require(init.js)
 
 (function(win) {
-	var STORAGE_KEY_READ_PAGES = config.STORAGE_KEY_READ_PAGES;
+    var STORAGE_KEY_READ_PAGES = config.STORAGE_KEY_READ_PAGES;
 
-	var storage = chrome.storage.local;
+    var storage = chrome.storage.local;
 
-	/** 
-		readPages = { 
-			domain: {
-				path: date_string,
-				... ...
-			}
-			... ...
-		}
-	**/
-	var readPages = null;
-	var storageManager = {
-		addRead: function(url) {
-			if (readPages === null) {
-				postAction(this.addRead, url);
-				return;
-			}
+    /** 
+        readPages = { 
+            domain: {
+                path: date_string,
+                ... ...
+            }
+            ... ...
+        }
+    **/
+    var readPages = null;
+    var storageManager = {
+        addRead: function(url) {
+            if (readPages === null) {
+                postAction(this.addRead, url);
+                return;
+            }
 
-    		var uri = formatUrl(url),
-    			domainPages = readPages[uri.domain];
-    		if (!domainPages) {
-    			domainPages = {};
-        		readPages[uri.domain] = domainPages;
-    		}
+            var uri = formatUrl(url),
+                domainPages = readPages[uri.domain];
+            if (!domainPages) {
+                domainPages = {};
+                readPages[uri.domain] = domainPages;
+            }
 
-    		if (domainPages[uri.path]) {
-        		return;
-    		}
+            if (domainPages[uri.path]) {
+                return;
+            }
 
-    		domainPages[uri.path] = new Date() + "";
+            domainPages[uri.path] = new Date() + "";
 
-    		updateRead();
-		},
+            updateRead();
+        },
 
-		removeRead: function(url) {
-			if (readPages === null) {
-				postAction(this.removeRead, url);
-				return;
-			}
+        removeRead: function(url) {
+            if (readPages === null) {
+                postAction(this.removeRead, url);
+                return;
+            }
 
-			var uri = formatUrl(url),
-				domainPages = readPages[uri.domain];
+            var uri = formatUrl(url),
+                domainPages = readPages[uri.domain];
 
-		    if (domainPages) {
-		        delete domainPages[uri.path];
-		    }
+            if (domainPages) {
+                delete domainPages[uri.path];
+            }
 
-		    updateRead();
-		},
+            updateRead();
+        },
 
-		toggleRead: function(url) {
-			if (readPages === null) {
-				postAction(this.toggleRead, url);
-				return;
-			}
+        toggleRead: function(url) {
+            if (readPages === null) {
+                postAction(this.toggleRead, url);
+                return;
+            }
 
-			if (this.hasRead(url)) {
-				this.removeRead(url);
-			} else {
-				this.addRead(url);
-			}
-		},
+            if (this.hasRead(url)) {
+                this.removeRead(url);
+            } else {
+                this.addRead(url);
+            }
+        },
 
-		hasRead: function(url, callback = null) {
-			var outthis = this;
-			if (readPages === null) {
-				loadStorage(function() {
-					outthis.hasRead(url, callback);
-				});
-				return;
-			}
-			var uri = formatUrl(url),
-    			domainPages = readPages[uri.domain];
+        hasRead: function(url, callback) {
+            var outthis = this;
+            if (readPages === null) {
+                loadStorage(function() {
+                    outthis.hasRead(url, callback);
+                });
+                return;
+            }
+            var uri = formatUrl(url),
+                domainPages = readPages[uri.domain];
 
-    		var hasRead = ((!!domainPages) && (!!(domainPages[uri.path])));
-    		if (callback) {
-    			callback(hasRead);
-    		} else {
-    			return hasRead;
-    		}
-		},
+            var hasRead = ((!!domainPages) && (!!(domainPages[uri.path])));
+            if (callback) {
+                callback(hasRead);
+            } else {
+                return hasRead;
+            }
+        },
 
-		getReadPages: function(callback) {
-			if (readPages === null) {
-				postAction(this.getReadPages, callback);
-				return;
-			}
+        getReadPages: function(callback) {
+            if (readPages === null) {
+                postAction(this.getReadPages, callback);
+                return;
+            }
 
-			callback(readPages);
-		}
-	}
+            callback(readPages);
+        }
+    }
 
 
-	function postAction(func, arg) {
-		loadStorage(function() {
-			func.call(storageManager, arg);
-		});
-	}
+    function postAction(func, arg) {
+        loadStorage(function() {
+            func.call(storageManager, arg);
+        });
+    }
 
-	function loadStorage(callback = null) {
-		var key = STORAGE_KEY_READ_PAGES;
-		storage.get([key], function(item) {
-			// prevent from multiple get
-			if (readPages === null) {
-			   readPages = item[key];
-			    if (!readPages) {
-			        readPages = {};
-			        updateRead();
-			    }
+    function loadStorage(callback) {
+        var key = STORAGE_KEY_READ_PAGES;
+        storage.get([key], function(item) {
+            // prevent from multiple get
+            if (readPages === null) {
+               readPages = item[key];
+                if (!readPages) {
+                    readPages = {};
+                    updateRead();
+                }
 
-			    if (callback) {
-			        callback();
-			    }
-			}
-		});
-	}
+                if (callback) {
+                    callback();
+                }
+            }
+        });
+    }
 
-	function updateRead() {
-	    var data = {};
-	    data[STORAGE_KEY_READ_PAGES] = readPages;
-	    storage.set(data, function () {
-	        if (chrome.runtime.lastError) {
-	            log.e(chrome.runtime.lastError);
-	        } else {
-            	log.i('Read pages has been updated');
-	        }
-	    });
-	}
+    function updateRead() {
+        var data = {};
+        data[STORAGE_KEY_READ_PAGES] = readPages;
+        storage.set(data, function () {
+            if (chrome.runtime.lastError) {
+                log.e(chrome.runtime.lastError);
+            } else {
+                log.i('Read pages has been updated');
+            }
+        });
+    }
 
-	loadStorage();
-	win.storageManager = storageManager;
+    loadStorage();
+    win.storageManager = storageManager;
 })(window);
 
 
