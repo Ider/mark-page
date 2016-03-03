@@ -1,7 +1,9 @@
 // require(init.js)
 
 (function(win) {
-    var STORAGE_KEY_READ_PAGES = config.STORAGE_KEY_READ_PAGES;
+    var STORAGE_KEY_READ_PAGES = config.STORAGE_KEY_READ_PAGES,
+        STORAGE_KEY_BLACKOUT_PATHS = config.STORAGE_KEY_BLACKOUT_PATHS,
+        STORAGE_KEYS = [STORAGE_KEY_READ_PAGES, STORAGE_KEY_BLACKOUT_PATHS];
 
     var storage = chrome.storage.local;
 
@@ -15,6 +17,15 @@
         }
     **/
     var readPages = null;
+
+    /**
+        blackoutPaths = {
+            domain: {
+                path: date_string,
+            }
+        }
+    **/
+    var blackoutPaths = null;
     var storageManager = {
         addRead: function(url) {
             if (readPages === null) {
@@ -27,6 +38,8 @@
             if (!domainPages) {
                 domainPages = {};
                 readPages[uri.domain] = domainPages;
+
+                this.blackoutPath(uri.domain, uri.path);
             }
 
             if (domainPages[uri.path]) {
@@ -68,11 +81,8 @@
         },
 
         hasRead: function(url, callback) {
-            var outthis = this;
             if (readPages === null) {
-                loadStorage(function() {
-                    outthis.hasRead(url, callback);
-                });
+                postAction(this.hasRead, url, callback);
                 return;
             }
             var uri = formatUrl(url),
@@ -93,42 +103,103 @@
             }
 
             callback(readPages);
+        },
+
+        getBlackoutPaths: function(callback) {
+            if (blackoutPaths === null) {
+                postAction(this.getBlackoutPaths, callback);
+                return;
+            }
+
+            callback(blackoutPaths);
+        },
+
+        blackoutPath: function(domain, path) {
+            if (blackoutPaths === null) {
+                postAction(this.getBlackoutPaths, domain, path);
+                return;
+            }
+
+            var pathList = blackoutPaths[domain];
+
+            if (!pathList) {
+                pathList = {}
+                blackoutPaths[domain] = pathList;
+            }
+            if (path) {
+                pathList[path] = new Date() + "";
+            }
+
+            updateBlackout();
+        },
+
+        lightupPath: function(domain, path) {
+            if (blackoutPaths === null) {
+                postAction(this.lightupPath, domain, path);
+                return;
+            }
+
+            var pathList = blackoutPaths[domain];
+            if (pathList) {
+                delete pathList[path];
+            }
+
+            updateBlackout();
         }
     }
-
-
-    function postAction(func, arg) {
+    /**
+     * @params func, args_for_func...
+     */
+    function postAction() {
+        var args = arguments,
+            func = args[0];
+        args.shift();
         loadStorage(function() {
-            func.call(storageManager, arg);
+            func.apply(storageManager, args);
         });
     }
 
     function loadStorage(callback) {
-        var key = STORAGE_KEY_READ_PAGES;
-        storage.get([key], function(item) {
+        storage.get(STORAGE_KEYS, function(item) {
             // prevent from multiple get
             if (readPages === null) {
-               readPages = item[key];
+               readPages = item[STORAGE_KEY_READ_PAGES];
                 if (!readPages) {
                     readPages = {};
                     updateRead();
                 }
+            }
 
-                if (callback) {
-                    callback();
+            if (blackoutPaths === null) {
+                blackoutPaths = item[STORAGE_KEY_BLACKOUT_PATHS];
+                if (!blackoutPaths) {
+                    blackoutPaths = {};
+                    updateBlackout();
                 }
+            }
+
+            if (callback) {
+                callback();
             }
         });
     }
 
     function updateRead() {
+        updateStorage(STORAGE_KEY_READ_PAGES, readPages);
+    }
+
+    function updateBlackout() {
+        updateStorage(STORAGE_KEY_BLACKOUT_PATHS, blackoutPaths);
+    }
+
+    function updateStorage(key, info) {
         var data = {};
-        data[STORAGE_KEY_READ_PAGES] = readPages;
+        data[key] = info;
         storage.set(data, function () {
             if (chrome.runtime.lastError) {
                 log.e(chrome.runtime.lastError);
             } else {
-                log.i('Read pages has been updated');
+                log.i(key + ' has been updated');
             }
         });
     }

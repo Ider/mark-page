@@ -43,6 +43,7 @@
 
     win.config = {
         STORAGE_KEY_READ_PAGES: "key_read_pages",
+        STORAGE_KEY_BLACKOUT_PATHS: "key_blackout_paths",
         COMMAND_TOGGLE_READ: "command-toggle-read",
     };
 })(window);
