@@ -39,7 +39,7 @@
                 domainPages = {};
                 readPages[uri.domain] = domainPages;
 
-                this.blackoutPath(uri.domain, uri.path);
+                this.blackoutPath(uri.domain, null);
             }
 
             if (domainPages[uri.path]) {
@@ -115,6 +115,8 @@
         },
 
         blackoutPath: function(domain, path) {
+            if (!path) return;
+
             if (blackoutPaths === null) {
                 postAction(this.getBlackoutPaths, domain, path);
                 return;
@@ -126,14 +128,14 @@
                 pathList = {}
                 blackoutPaths[domain] = pathList;
             }
-            if (path) {
-                pathList[path] = new Date() + "";
-            }
+ 
+            pathList[path] = new Date() + "";
 
             updateBlackout();
         },
 
         lightupPath: function(domain, path) {
+            if (!path) return;
             if (blackoutPaths === null) {
                 postAction(this.lightupPath, domain, path);
                 return;
@@ -195,6 +197,8 @@
     function updateStorage(key, info) {
         var data = {};
         data[key] = info;
+        console.log('info: ');
+        console.dir(info);
         storage.set(data, function () {
             if (chrome.runtime.lastError) {
                 log.e(chrome.runtime.lastError);

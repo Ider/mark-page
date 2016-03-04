@@ -2,11 +2,23 @@
 
 
 (function(win) {
-    var container = document.querySelector('#domains_list_container');
+    var container = document.querySelector('#domains_list_container'),
+        pathsTitle = document.querySelector('#blackout_paths_title');
 
-    var blackoutPaths;
+
+    var addPathContainer = document.querySelector('#add_path_container'),
+        inputPath = document.querySelector('#input_path'),
+        buttonAdd = document.querySelector('#button_add_path');
+
+    var pathList = document.querySelector('#blackout_paths_list');
+
+    var storageManager,
+        blackoutPaths;
+
+    var currentDomain;
 
     chrome.runtime.getBackgroundPage(function(bg) {
+        storageManager = bg.storageManager;
         bg.storageManager.getBlackoutPaths(function(paths) {
             blackoutPaths = paths;
             generateDomainList(paths);
@@ -25,31 +37,50 @@
         }
     }
 
-    function generateDomainPagesList(domain, domainPages) {
-        var LINK_TARGET = '_blank';
-        var h2 = node('h2'),
-            ha = node('a');
-        container.appendChild(h2);
-        h2.appendChild(ha);
-        ha.href = "http://" + domain;
-        ha.text = domain;
-        ha.target = LINK_TARGET
+    function generatePathList(domain, domainPaths) {
+        pathsTitle.innerText = domain;
+        pathList.innerHTML = '';
 
-        var ul = node('ul');
-        container.appendChild(ul);
-
-        for (var path in domainPages) {
-            if (domainPages.hasOwnProperty(path)) {
-                var li = node('li'),
-                    la = node('a');
-                ul.appendChild(li);
-                li.appendChild(la);
-                la.href = "http://" + domain + path;
-                la.text = path;
-                la.target = LINK_TARGET;
+        for (var path in domainPaths) {
+            if (domainPaths.hasOwnProperty(path)) {
+                addBlackoutPathToList(path);
             }
         }
     }
+
+    function addBlackoutPathToList(path) {
+        if (!currentDomain) return;
+
+        var li = node('li');
+        pathList.appendChild(li);
+        li.innerText = path;
+    }
+
+    container.addEventListener("click", function(e){
+        if (e.target.tagName != 'LI') return;
+
+        var domain = e.target.innerText;
+        generatePathList(domain, blackoutPaths[domain]);
+        currentDomain = domain;
+    });
+
+    pathList.addEventListener('click', function(e) {
+        if (e.target.tagName != 'LI') return;
+
+        var path = e.target.innerText;
+        storageManager.lightupPath(currentDomain, path);
+        pathList.removeChild(e.target);
+    })
+
+    buttonAdd.addEventListener('click', function(e) {
+        var path = inputPath.value;
+
+        if (path.charAt(0) != '/') {
+            path = '/' + path;
+        }
+        storageManager.blackoutPath(currentDomain, path);
+        addBlackoutPathToList(path);
+    });
 
     // Helper methods
     function node(tagName) {
