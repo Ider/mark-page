@@ -115,8 +115,6 @@
         },
 
         blackoutPath: function(domain, path) {
-            if (!path) return;
-
             if (blackoutPaths === null) {
                 postAction(this.getBlackoutPaths, domain, path);
                 return;
@@ -129,8 +127,9 @@
                 blackoutPaths[domain] = pathList;
             }
  
-            pathList[path] = new Date() + "";
+            if (!path) return;
 
+            pathList[path] = new Date() + "";
             updateBlackout();
         },
 
