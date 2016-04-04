@@ -33,9 +33,7 @@ NodeList.prototype.forEach = Array.prototype.forEach;
         links.forEach(function (a) {
             var uri = formatUrl(a.href);
             if (winUri.domain == uri.domain) {
-                if (winUri.path == uri.path) {
-                    a.classList.add('ider-mark-this-page');
-                } else if (domainPages[uri.path]) {
+                if (domainPages[uri.path]) {
                     a.classList.add('ider-mark-read-page');
                 }
             }
