@@ -54,6 +54,10 @@
         var li = node('li');
         pathList.appendChild(li);
         li.innerText = path;
+
+        var span = node('span');
+        span.innerText = 'x';
+        li.appendChild(span);
     }
 
     container.addEventListener("click", function(e){
@@ -65,11 +69,12 @@
     });
 
     pathList.addEventListener('click', function(e) {
-        if (e.target.tagName != 'LI') return;
+        if (e.target.tagName != 'SPAN') return;
 
-        var path = e.target.innerText;
+        var li = e.target.parentNode;
+        var path = li.childNodes[0].nodeValue;
         storageManager.lightupPath(currentDomain, path);
-        pathList.removeChild(e.target);
+        pathList.removeChild(li);
     })
 
     buttonAdd.addEventListener('click', function(e) {
