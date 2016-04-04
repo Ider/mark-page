@@ -67,6 +67,26 @@
             updateRead();
         },
 
+        removeDomain: function(domain) {
+            if (readPages === null) {
+                postAction(this.removeDomain, domain);
+                return;
+            }
+
+            var domainPages = readPages[domain];
+
+            if (domainPages) {
+                if (Object.keys(domainPages) > 0) {
+                    log.e("You must clear the read pages before remove the domain: " + domain);
+                    return;
+                }
+
+                delete readPages[domain];
+            }
+
+            updateRead();
+        },
+
         toggleRead: function(url) {
             if (readPages === null) {
                 postAction(this.toggleRead, url);

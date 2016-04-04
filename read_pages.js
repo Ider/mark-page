@@ -2,8 +2,11 @@
 
 (function(win) {
     var container = document.querySelector('#container');
+    
+    var storageManager;
 
     chrome.runtime.getBackgroundPage(function(bg) {
+        storageManager = bg.storageManager;
         bg.storageManager.getReadPages(function(pages) {
             generateReadPagesList(pages);
         });
@@ -36,10 +39,11 @@
         ha.target = LINK_TARGET
 
         var ul = node('ul');
-        container.appendChild(ul);
+        var hasReadPage = false;
 
         for (var path in domainPages) {
             if (domainPages.hasOwnProperty(path)) {
+                hasReadPage = true;
                 var li = node('li'),
                     la = node('a');
                 ul.appendChild(li);
@@ -49,7 +53,25 @@
                 la.target = LINK_TARGET;
             }
         }
+
+        if (hasReadPage) {
+            container.appendChild(ul);
+        } else {
+            var span = node('span');
+            span.innerText = 'x';
+            h2.appendChild(span);
+        }
+
     }
+
+    container.addEventListener("click", function(e){
+        if (e.target.tagName != 'SPAN') return;
+
+        var h2 = e.target.parentNode;
+        var domain = h2.childNodes[0].innerText;
+        storageManager.removeDomain(domain);
+        container.removeChild(h2);
+    });
 
     // Helper methods
     function node(tagName) {
